@@ -2,13 +2,13 @@ services:
   backend:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
     environment:
       DB_HOST: db
       DB_PORT: "3306"
@@ -18,7 +18,7 @@ services:
   configurator:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: none
@@ -41,19 +41,19 @@ services:
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
 
   create-site:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: none
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
     entrypoint:
       - bash
       - -c
@@ -80,7 +80,7 @@ services:
   db:
     image: mariadb:10.6
     networks:
-      - frappe_network
+      - frappe_ycd_network
     healthcheck:
       test: mysqladmin ping -h localhost --password=admin
       interval: 1s
@@ -97,12 +97,12 @@ services:
       MYSQL_ROOT_PASSWORD: admin
       MARIADB_ROOT_PASSWORD: admin
     volumes:
-      - db-data:/var/lib/mysql
+      - db_ycd-data:/var/lib/mysql
 
   frontend:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     depends_on:
       - websocket
     deploy:
@@ -120,15 +120,15 @@ services:
       PROXY_READ_TIMEOUT: 120
       CLIENT_MAX_BODY_SIZE: 50m
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
     ports:
-      - "8080:8080"
+      - "8085:8080"
 
   queue-long:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
@@ -138,8 +138,8 @@ services:
       - --queue
       - long,default,short
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
     environment:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
@@ -147,7 +147,7 @@ services:
   queue-short:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
@@ -157,8 +157,8 @@ services:
       - --queue
       - short,default
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
     environment:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
@@ -166,17 +166,17 @@ services:
   redis-queue:
     image: redis:6.2-alpine
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-      - redis-queue-data:/data
+      - redis-queue_ycd-data:/data
 
   redis-cache:
     image: redis:6.2-alpine
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
@@ -184,7 +184,7 @@ services:
   scheduler:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
@@ -192,13 +192,13 @@ services:
       - bench
       - schedule
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
 
   websocket:
     image: frappe/erpnext:v16.6.1
     networks:
-      - frappe_network
+      - frappe_ycd_network
     deploy:
       restart_policy:
         condition: on-failure
@@ -209,15 +209,15 @@ services:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites_ycd:/home/frappe/frappe-bench/sites
+      - logs_ycd:/home/frappe/frappe-bench/logs
 
 volumes:
-  db-data:
-  redis-queue-data:
-  sites:
-  logs:
+  db_ycd-data:
+  redis-queue_ycd-data:
+  sites_ycd:
+  logs_ycd:
 
 networks:
-  frappe_network:
+  frappe_ycd_network:
     driver: bridge
