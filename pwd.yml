@@ -123,7 +123,7 @@ services:
       - sites_ycd:/home/frappe/frappe-bench/sites
       - logs_ycd:/home/frappe/frappe-bench/logs
     ports:
-      - "8085:8080"
+      - "8087:8080"
 
   queue-long:
     image: frappe/erpnext:v16.6.1
